@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+body {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.bar {
+  fill: steelblue;
+}
+
+.x.axis path {
+  display: none;
+}
+
+.Coalition {
+  fill: #0066FF;  
+}
+
+.Labour {
+
+  fill:#FF3333;
+}
+
+.Greens {
+
+  fill:#339933;
+
+}
+
+.Palmer_United {
+
+  fill:#FFFF00;
+}
+
+.Family_First {
+
+  fill:#CC0099;
+}
+
+.Motoring_Enthusiast {
+
+  fill:#996633;
+}
+
+.Xenophon {
+
+  fill:rgb(255, 88, 0);
+}
+
+.Democratic_Labour {
+
+  fill:#669999;
+}
+
+.Liberal_Democratic {
+
+  fill:#666699;
+}
+
+
+</style>
+<body>
+  <div id="graphContainer">
+  </div>  
+  <div id="voteTable">
+  </div>  
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
+
+var margin = {top: 20, right: 20, bottom: 30, left:20},
+    width = 460 - margin.left - margin.right,
+    height = 300 - margin.top - margin.bottom;
+
+var x = d3.scale.ordinal()
+    .rangeRoundBands([0, width], .3);
+
+var y = d3.scale.linear()
+    .rangeRound([height, 0]);
+
+var color = d3.scale.ordinal()
+    .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left");
+
+var svg = d3.select("#graphContainer").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+d3.csv("senate.csv", function(error, data) {
+  color.domain(d3.keys(data[0]).filter(function(key) { return key !== "Outcome"; }));
+
+  data.forEach(function(d) {
+    console.log(d);
+    var y0 = 0;
+    d.parties = color.domain().map(function(name) { return {name: name, y0: y0, y1: y0 += +d[name]}; });
+    d.total = d.parties[d.parties.length - 1].y1;
+  });
+
+  data.forEach(function(d) {
+
+    console.log(d.parties);
+  });
+
+  x.domain(data.map(function(d) { return d.Outcome; }));
+  y.domain([0, d3.max(data, function(d) { 
+    return d.total; })]);
+
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis);
+
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis);
+
+  var state = svg.selectAll(".state")
+      .data(data)
+    .enter().append("g")
+      .attr("class", "g")
+      .attr("transform", function(d) { return "translate(" + x(d.Outcome) + ",0)"; });
+
+  state.selectAll("rect")
+      .data(function(d) { return d.parties; })
+    .enter().append("rect")
+      .attr("class", function(d) {return d.name.replace(" ", "_")})
+      .attr("width", x.rangeBand())
+      .attr("y", function(d) { return y(d.y1); })
+      .attr("height", function(d) { return y(d.y0) - y(d.y1); });
+
+  var toPass = svg.append("g")
+    .attr("id", "toPass")
+
+  toPass
+    .append("text")
+      .attr("x", 0.1 * width)
+      .attr("y", y(39))
+      .attr("dy", ".35em")
+      .style("text-anchor", "end")
+      .text("Pass");
+      
+  toPass 
+    .append("line")  
+    .attr("x1", 0.11 * width)
+    .attr("y1", y(39))
+    .attr("x2", 0.45 * width)
+    .attr("y2", y(39))
+    .attr("stroke-width", 1)
+    .attr("stroke", "black");
+
+ var toBlock = svg.append("g")
+    .attr("id", "toBlock")
+
+  toBlock
+    .append("text")
+      .attr("x", 0.54 * width)
+      .attr("y", y(38))
+      .attr("dy", ".35em")
+      .style("text-anchor", "end")
+      .text("Block");
+      
+  toBlock
+    .append("line")  
+    .attr("x1", 0.55 * width)
+    .attr("y1", y(38))
+    .attr("x2", 0.88 * width)
+    .attr("y2", y(38))
+    .attr("stroke-width", 1)
+    .attr("stroke", "black");
+
+
+});
+
+</script>
