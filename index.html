@@ -3,6 +3,7 @@
 <style>
 
 body {
+  margin: 0;
   font: 10px sans-serif;
 }
 
@@ -66,17 +67,22 @@ body {
   fill:#666699;
 }
 
+.container {
+  margin:5px;
+}
 
 </style>
 <body>
+  <div class="container">
   <div id="graphContainer">
   </div>  
   <div id="voteTable">
+  </div>
   </div>  
-<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="d3.min.js"></script>
 <script>
 
-var margin = {top: 20, right: 20, bottom: 30, left:20},
+var margin = {top: 20, right: 20, bottom: 30, left:25},
     width = 460 - margin.left - margin.right,
     height = 300 - margin.top - margin.bottom;
 
@@ -123,11 +129,6 @@ d3.csv("senate.csv", function(error, data) {
     return d.total; })]);
 
   svg.append("g")
-      .attr("class", "x axis")
-      .attr("transform", "translate(0," + height + ")")
-      .call(xAxis);
-
-  svg.append("g")
       .attr("class", "y axis")
       .call(yAxis);
 
@@ -155,15 +156,14 @@ d3.csv("senate.csv", function(error, data) {
       .attr("dy", ".35em")
       .style("text-anchor", "end")
       .text("Pass");
-      
-  toPass 
-    .append("line")  
-    .attr("x1", 0.11 * width)
-    .attr("y1", y(39))
-    .attr("x2", 0.45 * width)
-    .attr("y2", y(39))
-    .attr("stroke-width", 1)
-    .attr("stroke", "black");
+
+
+  toPass
+    .append("rect")
+    .attr("y", y(39))
+    .attr("x", 0.11 * width)  
+    .attr("width", x.rangeBand()*1.15)
+    .attr("height", 1);
 
  var toBlock = svg.append("g")
     .attr("id", "toBlock")
@@ -176,14 +176,12 @@ d3.csv("senate.csv", function(error, data) {
       .style("text-anchor", "end")
       .text("Block");
       
-  toBlock
-    .append("line")  
-    .attr("x1", 0.55 * width)
-    .attr("y1", y(38))
-    .attr("x2", 0.88 * width)
-    .attr("y2", y(38))
-    .attr("stroke-width", 1)
-    .attr("stroke", "black");
+  toPass
+    .append("rect")
+    .attr("y", y(38))
+    .attr("x", 0.55 * width)  
+    .attr("width", x.rangeBand()*1.15)
+    .attr("height", 1);
 
 
 });
