@@ -131,6 +131,10 @@ body {
   text-align: center;
 }
 
+.absentCol {
+  text-align: center;
+}
+
 .partyCol {
   text-align: left;
 }
@@ -187,7 +191,7 @@ var yAxis = d3.svg.axis()
     .scale(y)
     .orient("left");
 
-var notes = [{"outcome":"Pass","threshhold":39},{"outcome":"Block","threshhold":38}];
+var notes = [{"outcome":"Pass"},{"outcome":"Block"}];
 
 var svg = d3.select("#graphContainer").append("svg")
     .attr("width", width + margin.left + margin.right)
@@ -206,17 +210,43 @@ d3.csv("senate-abstain.csv", function(error, data) {
     d.total = d.parties[d.parties.length - 1].y1;
   });
 
-  var getMax;
+  //Get total number of senators present, excluding absentees
 
-  if ( d3.max(data, function(d) { return d.total; }) < 39 ) {
+  var totalPresent = 0;
+  var totalAbsent = 0;
+  var noToPass,noToBlock;
 
-    getMax = 40;
+  data.slice(0,2).forEach(function(d) {
+
+    console.log(d.total);
+    totalPresent = totalPresent + d.total;
+
+  });
+
+  //Number of absent senators
+
+  totalAbsent = 76 - totalPresent;
+
+  //Work out the number needed for a majority 
+
+  //First check if odd number
+
+  if ((totalPresent % 2) == 1) {
+
+      noToPass = Math.round(totalPresent/2);
+      noToBlock = noToPass - 1;
   }
+
+  //Otherwise just divide by two
 
   else {
 
-    getMax = d3.max(data, function(d) { return d.total; });
-  } 
+    noToPass = totalPresent/2 + 1;
+    noToBlock = totalPresent/2;
+
+  }
+
+  var getMax = d3.max(data, function(d) { return d.total; });
 
   x.domain(data.map(function(d) { return d.Outcome; }));
   y.domain([0, getMax]);
@@ -248,7 +278,17 @@ d3.csv("senate-abstain.csv", function(error, data) {
   toPass
     .append("text")
       .data(notes)
-      .attr("y", function(d) { return y(d.threshhold) })
+      .attr("y", function(d) { 
+
+        if (d.outcome === "Pass") {
+          return y(noToPass)
+        }
+
+        else if (d.outcome === "Block") {
+          return y(noToBlock)
+        }
+
+      })
       .attr("dy", ".35em")
       .attr("dx","-1.5em")
       .style("text-anchor", "end")
@@ -257,16 +297,29 @@ d3.csv("senate-abstain.csv", function(error, data) {
   toPass
      .append("rect")
       .data(notes)
-      .attr("y", function(d) { return y(d.threshhold) })
+      .attr("y", function(d) { 
+
+        if (d.outcome === "Pass") {
+          return y(noToPass)
+        }
+
+        else if (d.outcome === "Block") {
+          return y(noToBlock)
+        }
+
+        })
       .attr("x", (x.rangeBand() - (x.rangeBand()*1.15))/2)
       .attr("width", x.rangeBand()*1.15)
       .attr("height", 1);     
+
+
 
 $("#voteTable").append(
       "<tr>" +
       "<th class='large partyCol'>Party</th>" +
       "<th class='large forCol'>For</th>" +
       "<th class='large againstCol'>Against</th>" +
+      "<th class='large absentCol'>Absent</th>" +
       "</tr>"
 );
 
@@ -279,11 +332,12 @@ $("#voteTable").append(
   "<td class='partyCol'><span class='" + d.name.replace(" ","_") + "'>" + d.name + "</span></td>" +
   "<td class='forCol'>" + data[0][d.name] + "</td>" + 
   "<td class='againstCol'>" + data[1][d.name] + "</td>" + 
+  "<td class='absentCol'>" + data[2][d.name] + "</td>" + 
   "</tr>"
-
   );
 
 });
+
 d3.selectAll(".partyCol")
   .attr("width", x.rangeBand()*.85); 
 
@@ -294,7 +348,13 @@ d3.selectAll(".forCol")
 d3.selectAll(".againstCol")
   .attr("width", x.rangeBand())
   .style("padding-right", function() { return (x.rangeBand()/3) + "px"})
-  .style("padding-left", function() { return (x.rangeBand()/3) + "px"});  
+  .style("padding-left", function() { return (x.rangeBand()/3) + "px"});
+
+d3.selectAll(".absentCol")
+  .attr("width", x.rangeBand())
+  .style("padding-right", function() { return (x.rangeBand()/3) + "px"})
+  .style("padding-left", function() { return (x.rangeBand()/3) + "px"});
+
 
 });
 
