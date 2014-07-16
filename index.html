@@ -171,11 +171,22 @@ h1 {
 
 <script>
 
+//Get window (iframe) width
+
 getW = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+getH = 300;
+
+//Smaller graph for smaller screens
+
+if (getW < 460) {
+
+  getH = 200;
+
+}
 
 var margin = {top: 5, right: 20, bottom: 10, left:25},
     width = getW - margin.left - margin.right,
-    height = 300 - margin.top - margin.bottom;
+    height = getH - margin.top - margin.bottom;
 
 var x = d3.scale.ordinal()
     .rangeRoundBands([0, width], .4);
@@ -419,9 +430,20 @@ $(window).resize(function() {
 
 getW = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
 
+if (getW < 460) {
+
+  getH = 200;
+
+}
+
+else {
+
+  getH = 300;
+}
+
 margin = {top: 5, right: 20, bottom: 10, left:25},
     width = getW - margin.left - margin.right,
-    height = 300 - margin.top - margin.bottom;
+    height = getH - margin.top - margin.bottom;
 
 x.rangeRoundBands([0, width], .4);
 
