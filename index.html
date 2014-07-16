@@ -4,7 +4,8 @@
 
 body {
   margin: 0;
-  font: 10px sans-serif;
+  font-size: 10px;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 #graphContainer {
@@ -115,7 +116,6 @@ body {
 
 .container {
   margin:5px;
-  width:460px;
 }
 
 #voteTable {
@@ -145,7 +145,7 @@ body {
 }
 
 h1 {
-
+  font-family: Georgia, Times, serif;
   text-align: center;
 }
 
@@ -170,8 +170,10 @@ h1 {
 
 <script>
 
+getW = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+
 var margin = {top: 5, right: 20, bottom: 10, left:25},
-    width = 460 - margin.left - margin.right,
+    width = getW - margin.left - margin.right,
     height = 300 - margin.top - margin.bottom;
 
 var x = d3.scale.ordinal()
@@ -193,10 +195,20 @@ var yAxis = d3.svg.axis()
 
 var notes = [{"outcome":"Pass"},{"outcome":"Block"}];
 
+function drawGraph() {
+
+//Clear old graph if it exists
+
+d3.select("#voteGraph").remove();
+
+//Add graph
+
 var svg = d3.select("#graphContainer").append("svg")
     .attr("width", width + margin.left + margin.right)
+    .attr("id", "voteGraph")
     .attr("height", height + margin.top + margin.bottom)
   .append("g")
+    .attr("id", "graphNode")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 d3.csv("senate-abstain.csv", function(error, data) {
@@ -251,14 +263,16 @@ d3.csv("senate-abstain.csv", function(error, data) {
   x.domain(data.map(function(d) { return d.Outcome; }));
   y.domain([0, getMax]);
 
+
+
   svg.append("g")
       .attr("class", "y axis")
       .call(yAxis);
 
-  var state = svg.selectAll(".state")
+  var state = svg.selectAll(".stackNodes")
       .data(data)
     .enter().append("g")
-      .attr("class", "g")
+      .attr("class", "g stackNodes")
       .attr("transform", function(d) { return "translate(" + x(d.Outcome) + ",0)"; });
 
   state.selectAll("rect")
@@ -312,7 +326,11 @@ d3.csv("senate-abstain.csv", function(error, data) {
       .attr("width", x.rangeBand()*1.15)
       .attr("height", 1);     
 
+//Clear old table
 
+$("#voteTable").html("");
+
+//Update table
 
 $("#voteTable").append(
       "<tr>" +
@@ -356,6 +374,30 @@ d3.selectAll(".absentCol")
   .style("padding-left", function() { return (x.rangeBand()/3) + "px"});
 
 
+//Responsive jazz
+
 });
+
+}
+
+drawGraph();
+
+
+$(window).resize(function() {
+
+getW = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+
+margin = {top: 5, right: 20, bottom: 10, left:25},
+    width = getW - margin.left - margin.right,
+    height = 300 - margin.top - margin.bottom;
+
+x.rangeRoundBands([0, width], .4);
+
+y.rangeRound([height, 0]);
+   
+drawGraph();
+    
+});
+
 
 </script>
