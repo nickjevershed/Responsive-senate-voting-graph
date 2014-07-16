@@ -258,12 +258,14 @@ d3.csv("senate-abstain.csv", function(error, data) {
 
   }
 
+  //Get largest single total
+
   var getMax = d3.max(data, function(d) { return d.total; });
 
   x.domain(data.map(function(d) { return d.Outcome; }));
   y.domain([0, getMax]);
 
-
+  //Graph stuff
 
   svg.append("g")
       .attr("class", "y axis")
@@ -282,6 +284,8 @@ d3.csv("senate-abstain.csv", function(error, data) {
       .attr("width", x.rangeBand())
       .attr("y", function(d) { return y(d.y1); })
       .attr("height", function(d) { return y(d.y0) - y(d.y1); });
+
+  //Add pass and block thresholds    
 
   var toPass = svg.selectAll(".notes")
     .data(data)
@@ -341,6 +345,8 @@ $("#voteTable").append(
       "</tr>"
 );
 
+//Make a nice table
+
 data[0]['parties'].forEach(function(d) {
 
 console.log(d.name);
@@ -373,15 +379,15 @@ d3.selectAll(".absentCol")
   .style("padding-right", function() { return (x.rangeBand()/3) + "px"})
   .style("padding-left", function() { return (x.rangeBand()/3) + "px"});
 
-
-//Responsive jazz
-
 });
 
 }
 
+//DRAW IT DRAW IT NOW
+
 drawGraph();
 
+//Responsive jazz
 
 $(window).resize(function() {
 
