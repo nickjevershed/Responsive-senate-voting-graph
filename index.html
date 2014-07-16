@@ -119,23 +119,20 @@ body {
 }
 
 #voteTable {
-  width:70%;
-  margin-left:15%;
-  margin-right:15%;  
+  margin-right:5%;  
   font-size: 12px;
-  text-align: center;
 }
 
 .forCol {
-  width:32.3%;
+  text-align: center;
 }
 
 .againstCol {
-  width:32.3%;
+  text-align: center;
 }
 
 .partyCol {
-  width:35.3%;
+  text-align: left;
 }
 
 .large {
@@ -157,11 +154,7 @@ h1 {
     </div>  
     <div id="voteTableContainer">
       <table id="voteTable">
-        <tr>
-          <th class="large">For</th>
-          <th>Party</th> 
-          <th class="large">Against</th>
-        </tr>
+        
       </table>  
 
     </div>
@@ -178,7 +171,7 @@ var margin = {top: 5, right: 20, bottom: 10, left:25},
     height = 300 - margin.top - margin.bottom;
 
 var x = d3.scale.ordinal()
-    .rangeRoundBands([0, width], .3);
+    .rangeRoundBands([0, width], .4);
 
 var y = d3.scale.linear()
     .rangeRound([height, 0]);
@@ -202,7 +195,7 @@ var svg = d3.select("#graphContainer").append("svg")
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-d3.csv("senate.csv", function(error, data) {
+d3.csv("senate-abstain.csv", function(error, data) {
 
   console.log(data);
   color.domain(d3.keys(data[0]).filter(function(key) { return key !== "Outcome"; }));
@@ -213,9 +206,20 @@ d3.csv("senate.csv", function(error, data) {
     d.total = d.parties[d.parties.length - 1].y1;
   });
 
+  var getMax;
+
+  if ( d3.max(data, function(d) { return d.total; }) < 39 ) {
+
+    getMax = 40;
+  }
+
+  else {
+
+    getMax = d3.max(data, function(d) { return d.total; });
+  } 
+
   x.domain(data.map(function(d) { return d.Outcome; }));
-  y.domain([0, d3.max(data, function(d) { 
-    return d.total; })]);
+  y.domain([0, getMax]);
 
   svg.append("g")
       .attr("class", "y axis")
@@ -258,33 +262,13 @@ d3.csv("senate.csv", function(error, data) {
       .attr("width", x.rangeBand()*1.15)
       .attr("height", 1);     
 
-  /*    
-  toPass
-    .append("rect")
-    .attr("y", y(39))
-    .attr("x", 0.11 * width)  
-    .attr("width", x.rangeBand()*1.15)
-    .attr("height", 1);
-
- var toBlock = svg.append("g")
-    .attr("id", "toBlock")
-
-  toBlock
-    .append("text")
-      .attr("x", 0.54 * width)
-      .attr("y", y(38))
-      .attr("dy", ".35em")
-      .style("text-anchor", "end")
-      .text("Block");
-      
-  toPass
-    .append("rect")
-    .attr("y", y(38))
-    .attr("x", 0.55 * width)  
-    .attr("width", x.rangeBand()*1.15)
-    .attr("height", 1);
-
-  */
+$("#voteTable").append(
+      "<tr>" +
+      "<th class='large partyCol'>Party</th>" +
+      "<th class='large forCol'>For</th>" +
+      "<th class='large againstCol'>Against</th>" +
+      "</tr>"
+);
 
 data[0]['parties'].forEach(function(d) {
 
@@ -292,16 +276,25 @@ console.log(d.name);
 
 $("#voteTable").append(
   "<tr>" +
-  "<td class='forCol'>" + data[0][d.name] + "</td>" + 
   "<td class='partyCol'><span class='" + d.name.replace(" ","_") + "'>" + d.name + "</span></td>" +
+  "<td class='forCol'>" + data[0][d.name] + "</td>" + 
   "<td class='againstCol'>" + data[1][d.name] + "</td>" + 
   "</tr>"
 
   );
 
+});
+d3.selectAll(".partyCol")
+  .attr("width", x.rangeBand()*.85); 
 
+d3.selectAll(".forCol")
+  .attr("width", x.rangeBand())
+  .style("padding-right", function() { return (x.rangeBand()/3) + "px"}); 
 
-});    
+d3.selectAll(".againstCol")
+  .attr("width", x.rangeBand())
+  .style("padding-right", function() { return (x.rangeBand()/3) + "px"})
+  .style("padding-left", function() { return (x.rangeBand()/3) + "px"});  
 
 });
 
