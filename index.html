@@ -32,7 +32,7 @@ body {
 
 #graphContainer .Labor {
 
-  fill:#FF3333;
+  fill:#cb0f32;
 }
 
 #graphContainer .Greens {
@@ -77,7 +77,7 @@ body {
 
 #voteTable .Labor {
 
-  border-bottom: 2px solid #FF3333;
+  border-bottom: 2px solid #cb0f32;
 }
 
 #voteTable .Greens {
@@ -165,7 +165,7 @@ h1 {
 <body>
 
   <div class="container clearfix">
-    <h1>Carbon tax repeal bill</h1>
+    <h1>Votes: Carbon tax repeal bill</h1>
     <div id="graphContainer">
     </div>  
     <div id="voteTableContainer">
@@ -284,7 +284,17 @@ d3.csv("senate-abstain.csv", function(error, data) {
 
   //Get largest single total
 
-  var getMax = d3.max(data, function(d) { return d.total; });
+  var getMax;
+
+  if (d3.max(data, function(d) { return d.total; }) < 39) {
+
+    getMax = 40;
+  }
+
+  else {
+
+    getMax = d3.max(data, function(d) { return d.total; });
+  }
 
   x.domain(data.map(function(d) { return d.Outcome; }));
   y.domain([0, getMax]);
